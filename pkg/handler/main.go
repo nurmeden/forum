@@ -1,14 +1,13 @@
-package main
+package handler
 
 import (
-	"forum/pkg/handler"
 	"log"
 	"net/http"
 )
 
-func main() {
+func ListenServer() {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", handler.Home_Page)
+	mux.HandleFunc("/", Home_Page)
 	log.Println("Запуск веб-сервера на http://localhost:8080/ ")
 	err := http.ListenAndServe(":8080", mux)
 	if err != nil {
