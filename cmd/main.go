@@ -1,9 +1,9 @@
 package main
 
 import (
-	server "forum/pkg/Server"
+	server "forum/pkg/server"
 )
 
 func main() {
-	server.Server()
+	server.ServerRun()
 }

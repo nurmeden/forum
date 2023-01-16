@@ -5,7 +5,7 @@ import (
 	"forum/repository"
 )
 
-func Server() {
+func ServerRun() {
 	repository.CreateTable()
 	handler.ListenServer()
 }

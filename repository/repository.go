@@ -2,35 +2,46 @@ package repository
 
 import (
 	"database/sql"
-	"sync"
+	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
-const file string = "activities.db"
-
 const create string = `
-  CREATE TABLE IF NOT EXISTS activities (
-  id INTEGER NOT NULL PRIMARY KEY,
-  time DATETIME NOT NULL,
-  description TEXT
-  );`
+	CREATE TABLE IF NOT EXISTS post (
+	id INTEGER NOT NULL PRIMARY KEY,
+	time DATETIME NOT NULL,
+	description TEXT,
+	user VARCHAR(30),
+);`
 
-type Activities struct {
-	mu sync.Mutex
-	db *sql.DB
-}
+const like string = `
+    CREATE TABLE IF NOT EXISTS like (
+	id INTEGER NOT NULL PRIMARY KEY,
+	time DATETIME NOT NULL,
+	description TEXT,
+);`
 
-func CreateTable() (*Activities, error) {
-	db, err := sql.Open("sqlite3", file)
-	if err != nil {
-		return nil, err
-	}
-	if _, err := db.Exec(create); err != nil {
-		return nil, err
-	}
-	return &Activities{
-		db: db,
-	}, nil
+const comments string = `
+	CREATE TABLE IF NOT EXISTS comments (
+	id INTEGER NOT NULL PRIMARY KEY,
+	time DATETIME NOT NULL,
+	description TEXT,
+	user VARCHAR(30),
+);`
 
+func CreateTable() {
+	fmt.Println("os")
+	db, _ := sql.Open("sqlite3", "./forum.db")
+	fmt.Println("ok")
+
+	NewTable(db, create)
+	fmt.Println("no")
+	NewTable(db, like)
+
+	NewTable(db, comments)
+	// for _, table := range tables {
+	// 	NewTable(db, table)
+	// }
+	defer db.Close()
 }
