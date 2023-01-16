@@ -1,7 +1,7 @@
 package main
 
 import (
-	server "forum/pkg/server"
+	"forum/pkg/server"
 )
 
 func main() {

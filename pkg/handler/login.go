@@ -6,8 +6,8 @@ import (
 	"text/template"
 )
 
-func Home_Page(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("./resources/html/index.html")
+func Login(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("./resources/html/login.html")
 	if err != nil {
 		log.Fatal(err)
 	}
