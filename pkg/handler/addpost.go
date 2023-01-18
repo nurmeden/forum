@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"text/template"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func AddPost(w http.ResponseWriter, r *http.Request) {
@@ -19,8 +21,10 @@ func AddPost(w http.ResponseWriter, r *http.Request) {
 	}
 	title := r.FormValue("title_name")
 	content := r.FormValue("content_text")
-	db, _ := sql.Open("sqlite3", "./forum.db")
-	InsertPost(db, title, content)
+	if title != "" && content != "" {
+		db, _ := sql.Open("sqlite3", "./forum.db")
+		InsertPost(db, title, content)
+	}
 }
 
 func InsertPost(db *sql.DB, title string, content string) *Database {
