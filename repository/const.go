@@ -37,8 +37,6 @@ const (
 		owner TEXT,
 		title TEXT,
 		content TEXT,
-		type TEXT,
-		image Text,
 		likes INTEGER DEFAULT 0,
 		dislikes INTEGER DEFAULT 0
 	);`

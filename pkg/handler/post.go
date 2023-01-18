@@ -6,7 +6,7 @@ import (
 	"text/template"
 )
 
-func PostPage(w http.ResponseWriter, r *http.Request) {
+func Post(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("./resources/html/post.html")
 	if err != nil {
 		log.Fatal(err)

@@ -22,6 +22,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	user := r.FormValue("uname")
 	passwrd := r.FormValue("psw")
+	fmt.Println(user)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -32,7 +33,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		err = rows.Scan(&id, &email, &username, &password)
 		if user == username && passwrd == password {
-			fmt.Println("ok")
+			fmt.Println("k")
 		}
 	}
 }
