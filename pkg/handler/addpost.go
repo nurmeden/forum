@@ -14,7 +14,6 @@ func AddPost(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	r.ParseForm()
 	err = tmpl.Execute(w, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -28,8 +27,8 @@ func AddPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func InsertPost(db *sql.DB, title string, content string) *Database {
-	statement, _ := db.Prepare("INSERT INTO post(title, content) values(?,?);")
-	statement.Exec(title, content)
+	statement, _ := db.Prepare("INSERT INTO post(owner, title, content) values(?, ?, ?);")
+	statement.Exec("nurmeden", title, content)
 	// statement.Exec("nurmeden.02@gmail.com", "nurmeden", "vr3QcuFVQEDE8qz")
 	return &Database{
 		DB: db,

@@ -11,6 +11,7 @@ import (
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
+	inUser := false
 	switch r.Method {
 	case http.MethodGet:
 		tmpl, err := template.ParseFiles("./resources/html/login.html")
@@ -35,11 +36,17 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		var password string
 		for rows.Next() {
 			err = rows.Scan(&id, &email, &username, &password)
+			fmt.Println(id, email, username, password)
 			if user == username && passwrd == password {
-				fmt.Println("k")
+				inUser = true
+				fmt.Println(inUser)
+				break
 			}
 		}
 	case http.MethodPost:
-		http.Redirect(w, r, "/", http.StatusFound)
+		fmt.Println(inUser)
+		if inUser {
+			http.Redirect(w, r, "/", http.StatusFound)
+		}
 	}
 }
