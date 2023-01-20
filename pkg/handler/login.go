@@ -52,11 +52,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 				Password: password,
 			}
 			http.Redirect(w, r, "/", http.StatusFound)
+
 			tmpl, err := template.ParseFiles("./resources/html/index.html")
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Println(userInPage.Username)
+			fmt.Println(userInPage)
 			err = tmpl.Execute(w, userInPage)
 			if err != nil {
 				log.Fatal(err)
