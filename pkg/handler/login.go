@@ -3,6 +3,7 @@ package handler
 import (
 	"database/sql"
 	"fmt"
+	"forum/models"
 	"log"
 	"net/http"
 	"text/template"
@@ -11,7 +12,6 @@ import (
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	inUser := false
 	switch r.Method {
 	case http.MethodGet:
 		tmpl, err := template.ParseFiles("./resources/html/login.html")
@@ -22,6 +22,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Fatal(err)
 		}
+	case http.MethodPost:
+		inUser := false
 		database, _ := sql.Open("sqlite3", "./forum.db")
 		rows, err := database.Query("SELECT * FROM users")
 
@@ -36,17 +38,31 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		var password string
 		for rows.Next() {
 			err = rows.Scan(&id, &email, &username, &password)
-			fmt.Println(id, email, username, password)
 			if user == username && passwrd == password {
 				inUser = true
 				fmt.Println(inUser)
 				break
 			}
 		}
-	case http.MethodPost:
-		fmt.Println(inUser)
 		if inUser {
+			userInPage := models.User{
+				Id:       id,
+				Email:    email,
+				Username: username,
+				Password: password,
+			}
 			http.Redirect(w, r, "/", http.StatusFound)
+			tmpl, err := template.ParseFiles("./resources/html/index.html")
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println(userInPage.Username)
+			err = tmpl.Execute(w, userInPage)
+			if err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			http.Redirect(w, r, "/login", http.StatusFound)
 		}
 	}
 }

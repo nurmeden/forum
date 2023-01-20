@@ -1,8 +1,17 @@
 package models
 
 type User struct {
-	id             int    `json: "id" db : "id"`
-	email          string `json: "email" db : "email"`
-	Username       string `json:"username" db:"username"`
-	HashedPassword string `json:"hashed_password" db:"hashed_password"`
+	Id       int
+	Email    string
+	Username string
+	Password string
+}
+
+type Post struct {
+	Id          int
+	Owner       string
+	TitleName   string
+	Description string
+	Likes       string
+	Dislikes    string
 }
