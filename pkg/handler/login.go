@@ -2,14 +2,25 @@ package handler
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"forum/models"
+	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"net/http"
 	"text/template"
-
-	_ "github.com/mattn/go-sqlite3"
+	"time"
 )
+
+var users = map[string]string{
+	"user1": "password1",
+	"user2": "password2",
+}
+
+type Credentials struct {
+	Password string `json:"password"`
+	Username string `json:"username"`
+}
 
 func Login(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
@@ -51,8 +62,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 				Username: username,
 				Password: password,
 			}
-			http.Redirect(w, r, "/", http.StatusFound)
-
 			tmpl, err := template.ParseFiles("./resources/html/index.html")
 			if err != nil {
 				log.Fatal(err)
@@ -62,6 +71,38 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Fatal(err)
 			}
+			var creds Credentials
+
+			err = json.NewDecoder(r.Body).Decode(&creds)
+			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+
+			expectedPassword, ok := users[creds.Username]
+
+			if !ok || expectedPassword != creds.Password {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+
+			sessionToken := uuid.NewString()
+			expiresAt := time.Now().Add(120 * time.Second)
+
+			sessions[sessionToken] = session{
+				username: creds.Username,
+				expiry:   expiresAt,
+			}
+
+			// Finally, we set the client cookie for "session_token" as the session token we just generated
+			// we also set an expiry time of 120 seconds
+			http.SetCookie(w, &http.Cookie{
+				Name:    "session_token",
+				Value:   sessionToken,
+				Expires: expiresAt,
+			})
+
+			http.Redirect(w, r, "/", http.StatusFound)
 		} else {
 			http.Redirect(w, r, "/login", http.StatusFound)
 		}
