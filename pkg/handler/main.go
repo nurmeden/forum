@@ -7,7 +7,7 @@ import (
 
 func ListenServer() {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", Home_Page)
+	mux.HandleFunc("/", HomePage)
 	mux.HandleFunc("/login", Login)
 	mux.HandleFunc("/signUp", SignUp)
 	mux.HandleFunc("/Addpost", AddPost)

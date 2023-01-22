@@ -5,12 +5,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"forum/models"
+	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"net/http"
 	"text/template"
 	"time"
 )
+
+var sessions = map[string]session{}
+
+type session struct {
+	username string
+	expiry   time.Time
+}
 
 var users = map[string]string{
 	"user1": "password1",
@@ -20,6 +28,10 @@ var users = map[string]string{
 type Credentials struct {
 	Password string `json:"password"`
 	Username string `json:"username"`
+}
+
+func (s session) isExpired() bool {
+	return s.expiry.Before(time.Now())
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
@@ -86,9 +98,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
+			// Create a new random session token
+			// we use the "github.com/google/uuid" library to generate UUIDs
 			sessionToken := uuid.NewString()
 			expiresAt := time.Now().Add(120 * time.Second)
 
+			// Set the token in the session map, along with the session information
 			sessions[sessionToken] = session{
 				username: creds.Username,
 				expiry:   expiresAt,
@@ -101,7 +116,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 				Value:   sessionToken,
 				Expires: expiresAt,
 			})
-
 			http.Redirect(w, r, "/", http.StatusFound)
 		} else {
 			http.Redirect(w, r, "/login", http.StatusFound)
