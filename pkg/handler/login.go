@@ -2,7 +2,6 @@ package handler
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"forum/models"
 	"github.com/google/uuid"
@@ -21,13 +20,8 @@ type session struct {
 }
 
 var users = map[string]string{
-	"user1": "password1",
-	"user2": "password2",
-}
-
-type Credentials struct {
-	Password string `json:"password"`
-	Username string `json:"username"`
+	"user1":    "password1",
+	"nurmeden": "dulat2002",
 }
 
 func (s session) isExpired() bool {
@@ -63,7 +57,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			err = rows.Scan(&id, &email, &username, &password)
 			if user == username && passwrd == password {
 				inUser = true
-				fmt.Println(inUser)
 				break
 			}
 		}
@@ -74,26 +67,18 @@ func Login(w http.ResponseWriter, r *http.Request) {
 				Username: username,
 				Password: password,
 			}
-			tmpl, err := template.ParseFiles("./resources/html/index.html")
-			if err != nil {
-				log.Fatal(err)
-			}
-			fmt.Println(userInPage)
-			err = tmpl.Execute(w, userInPage)
-			if err != nil {
-				log.Fatal(err)
-			}
-			var creds Credentials
 
-			err = json.NewDecoder(r.Body).Decode(&creds)
-			if err != nil {
-				w.WriteHeader(http.StatusBadRequest)
-				return
-			}
+			//var creds Credentials
 
-			expectedPassword, ok := users[creds.Username]
+			//err = json.NewDecoder(r.Body).Decode(&creds)
+			//if err != nil {
+			//	w.WriteHeader(http.StatusBadRequest)
+			//	return
+			//}
 
-			if !ok || expectedPassword != creds.Password {
+			expectedPassword, ok := users[userInPage.Username]
+			fmt.Println(expectedPassword)
+			if !ok || expectedPassword != userInPage.Password {
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
@@ -102,22 +87,29 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			// we use the "github.com/google/uuid" library to generate UUIDs
 			sessionToken := uuid.NewString()
 			expiresAt := time.Now().Add(120 * time.Second)
-
+			fmt.Println(sessionToken)
 			// Set the token in the session map, along with the session information
 			sessions[sessionToken] = session{
-				username: creds.Username,
+				username: userInPage.Username,
 				expiry:   expiresAt,
 			}
 
-			// Finally, we set the client cookie for "session_token" as the session token we just generated
-			// we also set an expiry time of 120 seconds
 			http.SetCookie(w, &http.Cookie{
 				Name:    "session_token",
 				Value:   sessionToken,
 				Expires: expiresAt,
 			})
+			tmpl, err := template.ParseFiles("./resources/html/index.html")
+			if err != nil {
+				log.Fatal(err)
+			}
+			err = tmpl.Execute(w, userInPage)
+			if err != nil {
+				log.Fatal(err)
+			}
 			http.Redirect(w, r, "/", http.StatusFound)
 		} else {
+			fmt.Println(" return login url ")
 			http.Redirect(w, r, "/login", http.StatusFound)
 		}
 	}
