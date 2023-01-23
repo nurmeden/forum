@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"forum/models"
-	"github.com/google/uuid"
+	"forum/pkg/service"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"net/http"
@@ -12,21 +12,25 @@ import (
 	"time"
 )
 
-var sessions = map[string]session{}
+var InMemorySession *service.Session
 
-type session struct {
-	username string
-	expiry   time.Time
-}
+const COOKIE_NAME = "sessionId"
 
-var users = map[string]string{
-	"user1":    "password1",
-	"nurmeden": "dulat2002",
-}
-
-func (s session) isExpired() bool {
-	return s.expiry.Before(time.Now())
-}
+//var sessions = map[string]session{}
+//
+//type session struct {
+//	username string
+//	expiry   time.Time
+//}
+//
+//var users = map[string]string{
+//	"user1":    "password1",
+//	"nurmeden": "dulat2002",
+//}
+//
+//func (s session) isExpired() bool {
+//	return s.expiry.Before(time.Now())
+//}
 
 func Login(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
@@ -46,6 +50,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 		user := r.FormValue("uname")
 		passwrd := r.FormValue("psw")
+		
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -61,12 +66,16 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		if inUser {
+			fmt.Println("ok")
 			userInPage := models.User{
 				Id:       id,
 				Email:    email,
 				Username: username,
 				Password: password,
 			}
+
+			sessionId := InMemorySession.Init(username)
+			Nick := InMemorySession.Get(sessionId)
 
 			//var creds Credentials
 
@@ -76,29 +85,40 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			//	return
 			//}
 
-			expectedPassword, ok := users[userInPage.Username]
-			fmt.Println(expectedPassword)
-			if !ok || expectedPassword != userInPage.Password {
-				w.WriteHeader(http.StatusUnauthorized)
-				return
-			}
+			//expectedPassword, ok := users[userInPage.Username]
+			//fmt.Println(expectedPassword)
+			//if !ok || expectedPassword != userInPage.Password {
+			//	w.WriteHeader(http.StatusUnauthorized)
+			//	return
+			//}
 
 			// Create a new random session token
 			// we use the "github.com/google/uuid" library to generate UUIDs
-			sessionToken := uuid.NewString()
-			expiresAt := time.Now().Add(120 * time.Second)
-			fmt.Println(sessionToken)
+			//sessionToken := uuid.NewString()
+			//expiresAt := time.Now().Add(120 * time.Second)
+			//fmt.Println(sessionToken)
 			// Set the token in the session map, along with the session information
-			sessions[sessionToken] = session{
-				username: userInPage.Username,
-				expiry:   expiresAt,
+			//sessions[sessionToken] = session{
+			//	username: userInPage.Username,
+			//	expiry:   expiresAt,
+			//}
+
+			if Nick == user {
+				DB, _ := database.Prepare("update sessions set session=? where user=?")
+				DB.Exec(sessionId, Nick)
+			} else {
+				DB, _ := database.Prepare(`Insert into sessions(user,session) values(?,?)`)
+				DB.Exec(Nick, sessionId)
 			}
 
-			http.SetCookie(w, &http.Cookie{
-				Name:    "session_token",
-				Value:   sessionToken,
-				Expires: expiresAt,
-			})
+			cookie := &http.Cookie{
+				Name:    COOKIE_NAME,
+				Value:   sessionId,
+				Expires: time.Now().Add(5 * time.Minute),
+			}
+			fmt.Println(cookie)
+			http.SetCookie(w, cookie)
+
 			tmpl, err := template.ParseFiles("./resources/html/index.html")
 			if err != nil {
 				log.Fatal(err)
