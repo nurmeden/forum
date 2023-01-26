@@ -7,5 +7,5 @@ import (
 
 func ServerRun() {
 	repository.CreateTable()
-	handler.ListenServer()
+	handler.Routes()
 }
