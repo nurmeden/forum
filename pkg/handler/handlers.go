@@ -15,6 +15,10 @@ type Home struct {
 }
 
 func HomePage(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
 	switch r.Method {
 	case http.MethodGet:
 
@@ -41,7 +45,6 @@ func HomePage(w http.ResponseWriter, r *http.Request) {
 				Nick = false
 			}
 		}
-		fmt.Println(Nick)
 		// We can obtain the session token from the requests cookies, which come with every request
 		tmpl, err := template.ParseFiles("./resources/html/index.html")
 		if err != nil {
