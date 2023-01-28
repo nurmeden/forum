@@ -2,8 +2,12 @@ package main
 
 import (
 	"forum/pkg/server"
+	"log"
 )
 
 func main() {
-	server.ServerRun()
+	err := server.ServerRun()
+	if err != nil {
+		log.Fatal(err)
+	}
 }

@@ -4,31 +4,51 @@ import (
 	"database/sql"
 	"fmt"
 	"forum/models"
+	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"net/http"
 	"text/template"
+	"time"
 )
+
+const COOKIE_NAME = "session_token"
+
+var users = map[string]string{
+	"nurmeden": "dulat2002",
+}
+
+var sessions = map[string]session{}
+
+// each session contains the username of the user and the time at which it expires
+type session struct {
+	username string
+	expiry   time.Time
+}
+
+func (s session) isExpired() bool {
+	return s.expiry.Before(time.Now())
+}
 
 func Login(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case http.MethodGet:
+	case "GET":
 		tmpl, err := template.ParseFiles("./resources/html/login.html")
 		if err != nil {
 			log.Fatal(err)
 		}
+		fmt.Println("oo")
 		err = tmpl.Execute(w, nil)
 		if err != nil {
 			log.Fatal(err)
 		}
-	case http.MethodPost:
+	case "POST":
 		inUser := false
 		database, _ := sql.Open("sqlite3", "./forum.db")
 		rows, err := database.Query("SELECT * FROM users")
 
 		user := r.FormValue("uname")
 		passwrd := r.FormValue("psw")
-
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -44,7 +64,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		if inUser {
-			fmt.Println("ok")
 			userInPage := models.User{
 				Id:       id,
 				Email:    email,
@@ -52,15 +71,38 @@ func Login(w http.ResponseWriter, r *http.Request) {
 				Password: password,
 			}
 
+			expectedPassword, ok := users[username]
+
+			if !ok || expectedPassword != password {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+
+			sessionToken := uuid.NewString()
+			expiresAt := time.Now().Add(120 * time.Second)
+
+			fmt.Println(sessionToken)
+
+			sessions[sessionToken] = session{
+				username: username,
+				expiry:   expiresAt,
+			}
+			http.SetCookie(w, &http.Cookie{
+				Name:     COOKIE_NAME,
+				Value:    sessionToken,
+				Expires:  expiresAt,
+				HttpOnly: false,
+			})
 			tmpl, err := template.ParseFiles("./resources/html/index.html")
 			if err != nil {
 				log.Fatal(err)
 			}
+			fmt.Println("userInPage:", userInPage)
 			err = tmpl.Execute(w, userInPage)
 			if err != nil {
 				log.Fatal(err)
 			}
-			http.Redirect(w, r, "/", http.StatusFound)
+			//http.Redirect(w, r, "/", http.StatusFound)
 		} else {
 			fmt.Println(" return login url ")
 			http.Redirect(w, r, "/login", http.StatusFound)
