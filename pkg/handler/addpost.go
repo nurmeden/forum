@@ -50,6 +50,7 @@ func AddPost(w http.ResponseWriter, r *http.Request) {
 		content := r.FormValue("content_text")
 		if title != "" && content != "" {
 			db, _ := sql.Open("sqlite3", "./forum.db")
+			defer db.Close()
 			InsertPost(db, userSession.Username, title, content)
 		}
 		http.Redirect(w, r, "/posts", 302)
@@ -57,10 +58,10 @@ func AddPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func InsertPost(db *sql.DB, owner string, title string, content string) *Database {
-	fmt.Println("in processing db")
 	statement, _ := db.Prepare("INSERT INTO post(owner, title, content) values(?, ?, ?);")
+	fmt.Println("in processing db")
+	fmt.Println(owner, title, content)
 	statement.Exec(owner, title, content)
-	// statement.Exec("nurmeden.02@gmail.com", "nurmeden", "vr3QcuFVQEDE8qz")
 	return &Database{
 		DB: db,
 	}

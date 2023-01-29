@@ -31,6 +31,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		Repeat_password := r.FormValue("psw-repeat")
 		if password == Repeat_password {
 			db, _ := sql.Open("sqlite3", "./forum.db")
+			defer db.Close()
 			InsertData(db, email, username, password)
 			fmt.Println(username)
 		}

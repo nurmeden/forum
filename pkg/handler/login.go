@@ -45,7 +45,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		inUser := false
 		database, _ := sql.Open("sqlite3", "./forum.db")
 		rows, err := database.Query("SELECT * FROM users")
-
+		fmt.Println(rows)
 		user := r.FormValue("uname")
 		passwrd := r.FormValue("psw")
 		if err != nil {
@@ -62,6 +62,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 				break
 			}
 		}
+		defer rows.Close()
 		if inUser {
 			userInPage := models.User{
 				Id:       id,
