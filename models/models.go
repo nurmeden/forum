@@ -15,3 +15,5 @@ type Post struct {
 	Likes       string
 	Dislikes    string
 }
+
+var Users []*User

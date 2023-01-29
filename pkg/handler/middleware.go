@@ -12,34 +12,33 @@ func secureHeaders(next http.Handler) http.Handler {
 	})
 }
 
-//func welcome(next http.Handler) http.Handler {
+//func welcome(next http.HandlerFunc) http.HandlerFunc {
 //	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-//		c, _ := r.Cookie("session_token")
-//		if !c.HttpOnly {
-//			//if err != nil {
-//			//	if err == http.ErrNoCookie {
-//			//		fmt.Println("ok")
-//			//		w.WriteHeader(http.StatusUnauthorized)
-//			//		return
-//			//	}
-//			//	w.WriteHeader(http.StatusBadRequest)
-//			//	return
-//			//}
-//			sessionToken := c.Value
-//
-//			userSession, exists := sessions[sessionToken]
-//			if !exists {
+//		c, err := r.Cookie("session_token")
+//		fmt.Println(c)
+//		if err != nil {
+//			if err == http.ErrNoCookie {
+//				fmt.Println("Status Unauthorized")
 //				w.WriteHeader(http.StatusUnauthorized)
 //				return
 //			}
-//			fmt.Println(userSession)
-//			if userSession.isExpired() {
-//				delete(sessions, sessionToken)
-//				w.WriteHeader(http.StatusUnauthorized)
-//				return
-//			}
-//			w.Write([]byte(fmt.Sprintf("Welcome %s!", userSession.username)))
+//			w.WriteHeader(http.StatusBadRequest)
+//			return
 //		}
+//		sessionToken := c.Value
+//
+//		userSession, exists := sessions[sessionToken]
+//		if !exists {
+//			w.WriteHeader(http.StatusUnauthorized)
+//			return
+//		}
+//		fmt.Println(userSession)
+//		if userSession.isExpired() {
+//			delete(sessions, sessionToken)
+//			w.WriteHeader(http.StatusUnauthorized)
+//			return
+//		}
+//		//w.Write([]byte(fmt.Sprintf("Welcome %s!", userSession.username)))
 //		next.ServeHTTP(w, r)
 //	})
 //}

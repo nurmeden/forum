@@ -22,7 +22,7 @@ var sessions = map[string]session{}
 
 // each session contains the username of the user and the time at which it expires
 type session struct {
-	username string
+	Username string
 	expiry   time.Time
 }
 
@@ -37,7 +37,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("oo")
 		err = tmpl.Execute(w, nil)
 		if err != nil {
 			log.Fatal(err)
@@ -81,31 +80,40 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			sessionToken := uuid.NewString()
 			expiresAt := time.Now().Add(120 * time.Second)
 
-			fmt.Println(sessionToken)
+			fmt.Println("sessionToken:", sessionToken)
 
 			sessions[sessionToken] = session{
-				username: username,
+				Username: username,
 				expiry:   expiresAt,
 			}
-			http.SetCookie(w, &http.Cookie{
-				Name:     COOKIE_NAME,
-				Value:    sessionToken,
-				Expires:  expiresAt,
-				HttpOnly: false,
-			})
-			tmpl, err := template.ParseFiles("./resources/html/index.html")
-			if err != nil {
-				log.Fatal(err)
-			}
 			fmt.Println("userInPage:", userInPage)
-			err = tmpl.Execute(w, userInPage)
-			if err != nil {
-				log.Fatal(err)
-			}
-			//http.Redirect(w, r, "/", http.StatusFound)
+			fmt.Println("sessionToken:", sessionToken)
+			fmt.Println("sessions:", sessions)
+			http.SetCookie(w, &http.Cookie{
+				Name:    COOKIE_NAME,
+				Value:   sessionToken,
+				Expires: expiresAt,
+				Path:    "/",
+			})
+			//appender := append(models.Users, &userInPage)
+			//fmt.Println("appender:", appender)
+			//tmpl, err := template.ParseFiles("./resources/html/index.html")
+			//if err != nil {
+			//	log.Fatal(err)
+			//}
+			//fmt.Println("userInPage:", userInPage)
+			//err = tmpl.Execute(w, userInPage)
+			//if err != nil {
+			//	log.Fatal(err)
+			//}
+
+			http.Redirect(w, r, "/", 302)
+			return
 		} else {
 			fmt.Println(" return login url ")
-			http.Redirect(w, r, "/login", http.StatusFound)
+			http.Redirect(w, r, "/login", 302)
 		}
+		return
 	}
+	return
 }
