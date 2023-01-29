@@ -20,7 +20,6 @@ func HomePage(w http.ResponseWriter, r *http.Request) {
 		}
 
 		c, err := r.Cookie("session_token")
-		fmt.Println(c)
 		if err != nil {
 			if err == http.ErrNoCookie {
 				fmt.Println("Status Unauthorized")
@@ -37,10 +36,10 @@ func HomePage(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-		fmt.Println(userSession)
+
 		if userSession.isExpired() {
 			delete(sessions, sessionToken)
-			w.WriteHeader(http.StatusUnauthorized)
+			http.Redirect(w, r, "/refresh", 302)
 			return
 		}
 		//w.Write([]byte(fmt.Sprintf("Welcome %s!", userSession.username)))

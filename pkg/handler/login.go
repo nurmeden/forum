@@ -69,7 +69,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 				Username: username,
 				Password: password,
 			}
-
+			fmt.Println(userInPage)
 			expectedPassword, ok := users[username]
 
 			if !ok || expectedPassword != password {
@@ -80,33 +80,17 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			sessionToken := uuid.NewString()
 			expiresAt := time.Now().Add(120 * time.Second)
 
-			fmt.Println("sessionToken:", sessionToken)
-
 			sessions[sessionToken] = session{
 				Username: username,
 				expiry:   expiresAt,
 			}
-			fmt.Println("userInPage:", userInPage)
-			fmt.Println("sessionToken:", sessionToken)
-			fmt.Println("sessions:", sessions)
+
 			http.SetCookie(w, &http.Cookie{
 				Name:    COOKIE_NAME,
 				Value:   sessionToken,
 				Expires: expiresAt,
 				Path:    "/",
 			})
-			//appender := append(models.Users, &userInPage)
-			//fmt.Println("appender:", appender)
-			//tmpl, err := template.ParseFiles("./resources/html/index.html")
-			//if err != nil {
-			//	log.Fatal(err)
-			//}
-			//fmt.Println("userInPage:", userInPage)
-			//err = tmpl.Execute(w, userInPage)
-			//if err != nil {
-			//	log.Fatal(err)
-			//}
-
 			http.Redirect(w, r, "/", 302)
 			return
 		} else {

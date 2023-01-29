@@ -8,6 +8,7 @@ import (
 func Routes() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", HomePage)
+	http.HandleFunc("/refresh", Refresh)
 	mux.HandleFunc("/login", Login)
 	mux.HandleFunc("/signUp", SignUp)
 	mux.HandleFunc("/Addpost", AddPost)
