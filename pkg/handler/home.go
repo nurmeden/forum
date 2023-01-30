@@ -19,18 +19,21 @@ func HomePage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		c, _ := r.Cookie("session_token")
-		// if err != nil {
-		// 	if err == http.ErrNoCookie {
-		// 		fmt.Println("Status Unauthorized")
-		// 		w.WriteHeader(http.StatusUnauthorized)
-		// 		return
-		// 	}
-		// 	w.WriteHeader(http.StatusBadRequest)
-		// 	return
-		// }
+		c, err := r.Cookie("session_token")
+		if err != nil {
+			tmpl, err := template.ParseFiles("./resources/html/index.html")
+			if err != nil {
+				fmt.Println("error in Parsing")
+				log.Fatal(err)
+			}
+			err = tmpl.Execute(w, nil)
+			if err != nil {
+				fmt.Println("error in Executing")
+				log.Fatal(err)
+			}
+			return
+		}
 		sessionToken := c.Value
-
 		userSession, _ := sessions[sessionToken]
 		// if !exists {
 		// 	w.WriteHeader(http.StatusUnauthorized)
@@ -50,7 +53,7 @@ func HomePage(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("error in Parsing")
 			log.Fatal(err)
 		}
-
+		fmt.Println(userSession.Username)
 		err = tmpl.Execute(w, userSession)
 		if err != nil {
 			fmt.Println("error in Executing")
