@@ -30,4 +30,5 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 		Value:   "",
 		Expires: time.Now(),
 	})
+	http.Redirect(w, r, "/", 302)
 }

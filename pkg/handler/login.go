@@ -31,6 +31,7 @@ func (s session) isExpired() bool {
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(w)
 	switch r.Method {
 	case "GET":
 		tmpl, err := template.ParseFiles("./resources/html/login.html")

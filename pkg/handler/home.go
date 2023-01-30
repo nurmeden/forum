@@ -19,23 +19,23 @@ func HomePage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		c, err := r.Cookie("session_token")
-		if err != nil {
-			if err == http.ErrNoCookie {
-				fmt.Println("Status Unauthorized")
-				w.WriteHeader(http.StatusUnauthorized)
-				return
-			}
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
+		c, _ := r.Cookie("session_token")
+		// if err != nil {
+		// 	if err == http.ErrNoCookie {
+		// 		fmt.Println("Status Unauthorized")
+		// 		w.WriteHeader(http.StatusUnauthorized)
+		// 		return
+		// 	}
+		// 	w.WriteHeader(http.StatusBadRequest)
+		// 	return
+		// }
 		sessionToken := c.Value
 
-		userSession, exists := sessions[sessionToken]
-		if !exists {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
+		userSession, _ := sessions[sessionToken]
+		// if !exists {
+		// 	w.WriteHeader(http.StatusUnauthorized)
+		// 	return
+		// }
 
 		if userSession.isExpired() {
 			delete(sessions, sessionToken)
