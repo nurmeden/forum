@@ -3,10 +3,10 @@ package handler
 import (
 	"database/sql"
 	"forum/models"
-	_ "github.com/mattn/go-sqlite3"
-	"log"
 	"net/http"
 	"text/template"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func Post(w http.ResponseWriter, r *http.Request) {
@@ -22,7 +22,8 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		err = rows.Scan(&idDb, &titleDb, &ownerDb, &contentDb, &likesDb, &dislikesDb)
 		if err != nil {
-			log.Fatal(err)
+			ErrorHandler(w, http.StatusInternalServerError)
+			return
 		}
 		itemInPosts := models.Post{
 			Id:          idDb,
@@ -36,10 +37,12 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	}
 	tmpl, err := template.ParseFiles("./resources/html/post.html")
 	if err != nil {
-		log.Fatal(err)
+		ErrorHandler(w, http.StatusInternalServerError)
+		return
 	}
 	err = tmpl.Execute(w, posts)
 	if err != nil {
-		log.Fatal(err)
+		ErrorHandler(w, http.StatusInternalServerError)
+		return
 	}
 }

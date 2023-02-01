@@ -2,9 +2,10 @@ package handler
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"net/http"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 func Refresh(w http.ResponseWriter, r *http.Request) {
@@ -13,22 +14,22 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 	c, err := r.Cookie("session_token")
 	if err != nil {
 		if err == http.ErrNoCookie {
-			w.WriteHeader(http.StatusUnauthorized)
+			ErrorHandler(w, http.StatusUnauthorized)
 			return
 		}
-		w.WriteHeader(http.StatusBadRequest)
+		ErrorHandler(w, http.StatusUnauthorized)
 		return
 	}
 	sessionToken := c.Value
 
 	userSession, exists := sessions[sessionToken]
 	if !exists {
-		w.WriteHeader(http.StatusUnauthorized)
+		ErrorHandler(w, http.StatusUnauthorized)
 		return
 	}
 	if userSession.isExpired() {
 		delete(sessions, sessionToken)
-		w.WriteHeader(http.StatusUnauthorized)
+		ErrorHandler(w, http.StatusUnauthorized)
 		return
 	}
 	// (END) The code until this point is the same as the first part of the `Welcome` route

@@ -3,7 +3,6 @@ package handler
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"net/http"
 	"text/template"
 
@@ -15,29 +14,29 @@ func AddPost(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		tmpl, err := template.ParseFiles("./resources/html/addpost.html")
 		if err != nil {
-			log.Fatal(err)
+			ErrorHandler(w, http.StatusInternalServerError)
+			return
 		}
 		err = tmpl.Execute(w, nil)
 		if err != nil {
-			log.Fatal(err)
+			ErrorHandler(w, http.StatusInternalServerError)
+			return
 		}
 	case "POST":
 		c, err := r.Cookie("session_token")
-
 		if err != nil {
 			if err == http.ErrNoCookie {
-				fmt.Println("Status Unauthorized")
-				w.WriteHeader(http.StatusUnauthorized)
+				ErrorHandler(w, http.StatusUnauthorized)
 				return
 			}
-			w.WriteHeader(http.StatusBadRequest)
+			ErrorHandler(w, http.StatusBadRequest)
 			return
 		}
 		sessionToken := c.Value
 
 		userSession, exists := sessions[sessionToken]
 		if !exists {
-			w.WriteHeader(http.StatusUnauthorized)
+			ErrorHandler(w, http.StatusUnauthorized)
 			return
 		}
 

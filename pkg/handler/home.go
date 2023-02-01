@@ -2,7 +2,6 @@ package handler
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"text/template"
 )
@@ -23,13 +22,13 @@ func HomePage(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			tmpl, err := template.ParseFiles("./resources/html/index.html")
 			if err != nil {
-				fmt.Println("error in Parsing")
-				log.Fatal(err)
+				ErrorHandler(w, http.StatusInternalServerError)
+				return
 			}
 			err = tmpl.Execute(w, nil)
 			if err != nil {
-				fmt.Println("error in Executing")
-				log.Fatal(err)
+				ErrorHandler(w, http.StatusInternalServerError)
+				return
 			}
 			return
 		}
@@ -45,26 +44,26 @@ func HomePage(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/refresh", 302)
 			return
 		}
-		//w.Write([]byte(fmt.Sprintf("Welcome %s!", userSession.username)))
+		// w.Write([]byte(fmt.Sprintf("Welcome %s!", userSession.username)))
 
 		// We can obtain the session token from the requests cookies, which come with every request
 		tmpl, err := template.ParseFiles("./resources/html/index.html")
 		if err != nil {
-			fmt.Println("error in Parsing")
-			log.Fatal(err)
+			ErrorHandler(w, http.StatusInternalServerError)
+			return
 		}
 		fmt.Println(userSession.Username)
 		err = tmpl.Execute(w, userSession)
 		if err != nil {
-			fmt.Println("error in Executing")
-			log.Fatal(err)
+			ErrorHandler(w, http.StatusInternalServerError)
+			return
 		}
 	case http.MethodPost:
 		fmt.Println("method post")
 		tmp, err := template.ParseFiles("./resources/html/index.html")
 		err = tmp.Execute(w, nil)
 		if err != nil {
-			fmt.Println(err)
+			ErrorHandler(w, http.StatusInternalServerError)
 			return
 		}
 	}

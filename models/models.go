@@ -16,4 +16,9 @@ type Post struct {
 	Dislikes    string
 }
 
+type Error struct {
+	Message string
+	Code    int
+}
+
 var Users []*User
