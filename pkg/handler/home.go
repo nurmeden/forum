@@ -7,14 +7,11 @@ import (
 )
 
 func HomePage(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		return
-	}
 	switch r.Method {
 	case http.MethodGet:
 
 		if r.URL.Path != "/" {
-			fmt.Println(http.StatusNotFound)
+			ErrorHandler(w, http.StatusNotFound)
 			return
 		}
 

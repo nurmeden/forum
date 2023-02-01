@@ -12,7 +12,7 @@ func ErrorHandler(w http.ResponseWriter, code int) {
 		Message: http.StatusText(code),
 		Code:    code,
 	}
-	tmpl, err := template.ParseFiles("./resources/html/login.html")
+	tmpl, err := template.ParseFiles("./resources/html/error.html")
 	if err != nil {
 		log.Fatal(err)
 	}
