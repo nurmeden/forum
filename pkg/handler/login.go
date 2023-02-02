@@ -31,7 +31,7 @@ func (s session) isExpired() bool {
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(w)
+
 	switch r.Method {
 	case "GET":
 		tmpl, err := template.ParseFiles("./resources/html/login.html")
@@ -46,7 +46,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		inUser := false
 		database, _ := sql.Open("sqlite3", "./forum.db")
 		rows, err := database.Query("SELECT * FROM users")
-		fmt.Println(rows)
+	
 		user := r.FormValue("uname")
 		passwrd := r.FormValue("psw")
 		if err != nil {
