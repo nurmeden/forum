@@ -4,19 +4,17 @@ import (
 	"database/sql"
 	"fmt"
 	"forum/models"
-	"github.com/google/uuid"
-	_ "github.com/mattn/go-sqlite3"
-	"log"
 	"net/http"
 	"text/template"
 	"time"
+
+	"github.com/google/uuid"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 const COOKIE_NAME = "session_token"
 
-var users = map[string]string{
-	"nurmeden": "dulat2002",
-}
+var users = map[string]string{}
 
 var sessions = map[string]session{}
 
@@ -36,21 +34,24 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		tmpl, err := template.ParseFiles("./resources/html/login.html")
 		if err != nil {
-			log.Fatal(err)
+			ErrorHandler(w, http.StatusInternalServerError)
+			return
 		}
 		err = tmpl.Execute(w, nil)
 		if err != nil {
-			log.Fatal(err)
+			ErrorHandler(w, http.StatusInternalServerError)
+			return
 		}
 	case "POST":
 		inUser := false
 		database, _ := sql.Open("sqlite3", "./forum.db")
 		rows, err := database.Query("SELECT * FROM users")
-	
+
 		user := r.FormValue("uname")
 		passwrd := r.FormValue("psw")
 		if err != nil {
-			log.Fatal(err)
+			ErrorHandler(w, http.StatusInternalServerError)
+			return
 		}
 		var id int
 		var email string
@@ -58,6 +59,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		var password string
 		for rows.Next() {
 			err = rows.Scan(&id, &email, &username, &password)
+			users[username] = password
 			if user == username && passwrd == password {
 				inUser = true
 				break
@@ -75,7 +77,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			expectedPassword, ok := users[username]
 
 			if !ok || expectedPassword != password {
-				w.WriteHeader(http.StatusUnauthorized)
+				ErrorHandler(w, http.StatusUnauthorized)
 				return
 			}
 
@@ -96,7 +98,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/", 302)
 			return
 		} else {
-			fmt.Println(" return login url ")
+
 			http.Redirect(w, r, "/login", 302)
 		}
 		return

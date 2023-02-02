@@ -3,7 +3,6 @@ package handler
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"net/http"
 	"text/template"
 
@@ -19,11 +18,13 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		tmpl, err := template.ParseFiles("./resources/html/signUp.html")
 		if err != nil {
-			log.Fatal(err)
+			ErrorHandler(w, http.StatusInternalServerError)
+			return
 		}
 		err = tmpl.Execute(w, nil)
 		if err != nil {
-			log.Fatal(err)
+			ErrorHandler(w, http.StatusInternalServerError)
+			return
 		}
 		email := r.FormValue("email")
 		username := r.FormValue("username")

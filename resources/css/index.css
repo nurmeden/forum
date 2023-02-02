@@ -5,3 +5,6 @@ body {
     background-attachment: fixed;
     background-position: 0% 50%;
 }
+.nav-item {
+    list-style-type: none;
+}

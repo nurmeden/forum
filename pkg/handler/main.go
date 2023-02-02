@@ -13,7 +13,7 @@ func Routes() http.Handler {
 	mux.HandleFunc("/login", Login)
 	mux.HandleFunc("/signUp", SignUp)
 	mux.HandleFunc("/Addpost", AddPost)
-	mux.HandleFunc("/posts", Post)
+	mux.HandleFunc("/posts", Posts)
 
 	log.Println("Запуск веб-сервера на http://localhost:8080/ ")
 	fileServer := http.FileServer(http.Dir("./resources/"))
