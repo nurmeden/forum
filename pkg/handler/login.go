@@ -46,7 +46,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		inUser := false
 		database, _ := sql.Open("sqlite3", "./forum.db")
 		rows, err := database.Query("SELECT * FROM users")
-
+		defer database.Close()
 		user := r.FormValue("uname")
 		passwrd := r.FormValue("psw")
 		if err != nil {
@@ -88,7 +88,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 				Username: username,
 				expiry:   expiresAt,
 			}
-
+			database, _ := sql.Open("sqlite3", "./forum.db")
+			InsertSession(database, username, sessionToken)
+			defer database.Close()
 			http.SetCookie(w, &http.Cookie{
 				Name:    COOKIE_NAME,
 				Value:   sessionToken,
@@ -98,10 +100,17 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/", 302)
 			return
 		} else {
-
 			http.Redirect(w, r, "/login", 302)
 		}
 		return
 	}
 	return
+}
+
+func InsertSession(db *sql.DB, user string, session string) *Database {
+	statement, _ := db.Prepare("INSERT INTO sessions(user, session) values(?, ?);")
+	statement.Exec(user, "bdfbdfbfdbdfb")
+	return &Database{
+		DB: db,
+	}
 }
