@@ -22,5 +22,5 @@ func Routes() http.Handler {
 	//if err != nil {
 	//	log.Fatal(err)
 	//}
-	return secureHeaders(mux)
+	return welcome(mux)
 }

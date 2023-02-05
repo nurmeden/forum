@@ -35,6 +35,7 @@ func Posts(w http.ResponseWriter, r *http.Request) {
 		}
 		posts = append(posts, itemInPosts)
 	}
+	rows.Close()
 	tmpl, err := template.ParseFiles("./resources/html/posts.html")
 	if err != nil {
 		ErrorHandler(w, http.StatusInternalServerError)

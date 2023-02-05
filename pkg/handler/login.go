@@ -30,7 +30,6 @@ func (s session) isExpired() bool {
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
-
 	switch r.Method {
 	case "GET":
 		tmpl, err := template.ParseFiles("./resources/html/login.html")
@@ -66,7 +65,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 				break
 			}
 		}
-		defer rows.Close()
+		rows.Close()
 		if inUser {
 			userInPage := models.User{
 				Id:       id,

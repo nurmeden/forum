@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"database/sql"
+	"log"
 	"net/http"
 	"text/template"
 )
@@ -37,6 +39,9 @@ func HomePage(w http.ResponseWriter, r *http.Request) {
 
 		if userSession.isExpired() {
 			delete(sessions, sessionToken)
+			db, _ := sql.Open("sqlite3", "./forum.db")
+			defer db.Close()
+			DeleteSession(db)
 			http.Redirect(w, r, "/refresh", 302)
 			return
 		}
@@ -60,5 +65,16 @@ func HomePage(w http.ResponseWriter, r *http.Request) {
 			ErrorHandler(w, http.StatusInternalServerError)
 			return
 		}
+	}
+}
+
+func DeleteSession(db *sql.DB) *Database {
+	statement, _ := db.Prepare("DELETE FROM sessions;")
+	_, err := statement.Exec()
+	if err != nil {
+		log.Print("err", err)
+	}
+	return &Database{
+		DB: db,
 	}
 }
