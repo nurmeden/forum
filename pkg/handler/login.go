@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"forum/models"
+	"log"
 	"net/http"
 	"text/template"
 	"time"
@@ -88,9 +89,15 @@ func Login(w http.ResponseWriter, r *http.Request) {
 				Username: username,
 				expiry:   expiresAt,
 			}
-			database, _ := sql.Open("sqlite3", "./forum.db")
-			InsertSession(database, username, sessionToken)
+			database, err := sql.Open("sqlite3", "./forum.db")
+			if err != nil {
+				log.Fatal(err)
+			}
+			if err = database.Ping(); err != nil {
+				log.Fatal(err)
+			}
 			defer database.Close()
+			InsertSession(database, username, sessionToken)
 			http.SetCookie(w, &http.Cookie{
 				Name:    COOKIE_NAME,
 				Value:   sessionToken,
@@ -109,7 +116,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 func InsertSession(db *sql.DB, user string, session string) *Database {
 	statement, _ := db.Prepare("INSERT INTO sessions(user, session) values(?, ?);")
-	statement.Exec(user, "bdfbdfbfdbdfb")
+	_, err := statement.Exec(user, "bdfbdfbfdbdfb")
+	if err != nil {
+		log.Print("err", err)
+	}
 	return &Database{
 		DB: db,
 	}
