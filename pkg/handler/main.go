@@ -14,6 +14,7 @@ func Routes() http.Handler {
 	mux.HandleFunc("/signUp", SignUp)
 	mux.HandleFunc("/Addpost", AddPost)
 	mux.HandleFunc("/posts", Posts)
+	mux.HandleFunc("/like", Like)
 
 	log.Println("Запуск веб-сервера на http://localhost:8080/ ")
 	fileServer := http.FileServer(http.Dir("./resources/"))
