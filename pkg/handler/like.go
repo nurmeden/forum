@@ -22,7 +22,7 @@ func Like(w http.ResponseWriter, r *http.Request) {
 }
 
 func AddLikeData(db *sql.DB) *Database {
-	statement, _ := db.Prepare("DELETE FROM sessions;")
+	statement, _ := db.Prepare("")
 	_, err := statement.Exec()
 	if err != nil {
 		log.Print("err", err)
